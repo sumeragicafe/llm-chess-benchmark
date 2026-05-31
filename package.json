@@ -1,0 +1,38 @@
+{
+  "name": "llm-chess-benchmark",
+  "version": "1.0.0",
+  "description": "CLI tool to benchmark LLMs on chess puzzles using the Lichess API",
+  "type": "module",
+  "bin": {
+    "llm-chess-benchmark": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "test": "tsx --test test/test.ts"
+  },
+  "keywords": [
+    "chess",
+    "llm",
+    "benchmark",
+    "lichess",
+    "puzzle"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@google/genai": "^2.7.0",
+    "chalk": "^5.3.0",
+    "chess.js": "^1.0.0-beta.8",
+    "cli-progress": "^3.12.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "openai": "^4.67.0"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.6.0"
+  }
+}
