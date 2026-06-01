@@ -18,7 +18,7 @@
     "lichess",
     "puzzle"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",
     "@google/genai": "^2.7.0",
