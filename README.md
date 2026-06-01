@@ -20,15 +20,15 @@ export ANTHROPIC_API_KEY=sk-ant-...
 export GEMINI_API_KEY=AIza...
 
 # OpenAI (default)
-node dist/cli.js bench -m gpt-4o -n 20 --verbose
+node dist/cli.js bench -m gpt-5.5 -n 20 --verbose
 
 # Anthropic
-node dist/cli.js bench -m claude-sonnet-4-20250514 -p anthropic -n 20 --verbose
+node dist/cli.js bench -m claude-opus-4.6 -p anthropic -n 20 --verbose
 
 # Google Gemini
-node dist/cli.js bench -m gemini-2.5-flash -p gemini -n 20 --verbose
+node dist/cli.js bench -m gemini-3.5-flash -p gemini -n 20 --verbose
 
-# Local model via Ollama
+# Local model via Llama.cpp
 node dist/cli.js bench -m llama3 -p openai-compatible --base-url http://localhost:11434/v1 -n 20
 
 # Save results to JSON
@@ -61,7 +61,7 @@ Create `.chess-bench.json` in the working directory for defaults:
 ```json
 {
   "provider": "gemini",
-  "model": "gemini-2.5-flash",
+  "model": "gemini-3.5-flash",
   "puzzles": 50,
   "verbose": true
 }
@@ -77,4 +77,4 @@ npm test
 
 ## License
 
-MIT
+GPLv3
