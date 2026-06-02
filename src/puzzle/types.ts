@@ -14,6 +14,8 @@ export interface PuzzleEntry {
   id: string;
   rating: number;
   themes: readonly string[];
+  fen: string;
+  solution: readonly string[];
 }
 
 export interface LichessPuzzleResponse {

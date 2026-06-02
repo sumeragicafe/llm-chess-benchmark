@@ -1,11 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { parseMove } from "../src/llm/parser.js";
-import { parsePuzzleResponse } from "../src/puzzle/parser.js";
+import { parsePuzzleResponse, createPuzzleFromBundled } from "../src/puzzle/parser.js";
 import { selectPuzzles } from "../src/puzzle/selector.js";
 import { evaluateMove } from "../src/benchmark/evaluator.js";
 import { aggregateByRatingBracket, aggregateByTheme } from "../src/benchmark/aggregator.js";
-import type { Puzzle, LichessPuzzleResponse } from "../src/puzzle/types.js";
+import type { Puzzle, LichessPuzzleResponse, PuzzleEntry } from "../src/puzzle/types.js";
 
 describe("move parser", () => {
   it("parses UCI move e2e4", () => {
@@ -138,5 +138,22 @@ describe("aggregator", () => {
     assert.ok(fork);
     assert.equal(fork.total, 2);
     assert.equal(fork.correct, 1);
+  });
+});
+
+describe("createPuzzleFromBundled", () => {
+  it("converts bundled entry to full Puzzle", () => {
+    const entry: PuzzleEntry = {
+      id: "testB",
+      rating: 1500,
+      themes: ["fork"],
+      fen: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+      solution: ["e7e5", "e4e5"],
+    };
+    const puzzle = createPuzzleFromBundled(entry);
+    assert.equal(puzzle.id, "testB");
+    assert.equal(puzzle.rating, 1500);
+    assert.ok(puzzle.playerFen !== puzzle.fen);
+    assert.deepEqual(puzzle.solutionMoves, ["e7e5", "e4e5"]);
   });
 });

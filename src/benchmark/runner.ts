@@ -5,9 +5,10 @@ import { OpenAICompatibleAdapter } from "../llm/openai-compatible.js";
 import { GeminiAdapter } from "../llm/gemini.js";
 import { withRetry } from "../llm/rate-limit.js";
 import { parseMove } from "../llm/parser.js";
-import { fetchPuzzleById } from "../puzzle/fetcher.js";
-import { parsePuzzleResponse } from "../puzzle/parser.js";
+import { fetchPuzzleById, fetchRandomPuzzles } from "../puzzle/fetcher.js";
+import { parsePuzzleResponse, createPuzzleFromBundled } from "../puzzle/parser.js";
 import { selectPuzzles } from "../puzzle/selector.js";
+import { BUNDLED_PUZZLES } from "../puzzle/bundled.js";
 import { evaluateMove } from "./evaluator.js";
 import { aggregateByRatingBracket, aggregateByTheme } from "./aggregator.js";
 import { createProgressBar, stopProgress } from "./progress.js";
@@ -57,23 +58,50 @@ function getApiKey(provider: string): string | undefined {
 }
 
 async function loadPuzzles(config: BenchmarkConfig): Promise<Puzzle[]> {
-  const entries = selectPuzzles({
-    count: config.puzzles,
-    minRating: config.minRating,
-    maxRating: config.maxRating,
-    themes: config.themes,
-    seed: config.seed,
-  });
+  if (config.bundled) {
+    const entries = selectPuzzles({
+      count: config.puzzles,
+      minRating: config.minRating,
+      maxRating: config.maxRating,
+      themes: config.themes,
+      seed: config.seed,
+    });
+    return entries.map(createPuzzleFromBundled);
+  }
 
+  console.log("Fetching puzzles from Lichess...");
+
+  const shuffledIds = [...BUNDLED_PUZZLES.map((p) => p.id)].sort(() => Math.random() - 0.5);
   const puzzles: Puzzle[] = [];
-  for (const entry of entries) {
-    try {
-      const raw = await fetchPuzzleById(entry.id);
-      puzzles.push(parsePuzzleResponse(raw));
-    } catch {
-      // skip puzzles that fail to load
+  const concurrency = Math.min(config.concurrency ?? 3, 5);
+
+  async function fetchOneById(): Promise<Puzzle | null> {
+    while (shuffledIds.length > 0) {
+      const id = shuffledIds.pop()!;
+      try {
+        const raw = await fetchPuzzleById(id);
+        const puzzle = parsePuzzleResponse(raw);
+        if (config.minRating && puzzle.rating < config.minRating) continue;
+        if (config.maxRating && puzzle.rating > config.maxRating) continue;
+        return puzzle;
+      } catch {
+        continue;
+      }
+    }
+    return null;
+  }
+
+  async function worker() {
+    while (puzzles.length < config.puzzles) {
+      const puzzle = await fetchOneById();
+      if (!puzzle) break;
+      puzzles.push(puzzle);
     }
   }
+
+  const workers = Array.from({ length: concurrency }, () => worker());
+  await Promise.all(workers);
+
   return puzzles;
 }
 

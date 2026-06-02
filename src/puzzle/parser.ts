@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import { LichessPuzzleResponse, Puzzle } from "./types.js";
+import { LichessPuzzleResponse, Puzzle, PuzzleEntry } from "./types.js";
 
 function uciToMove(uci: string) {
   return {
@@ -28,5 +28,23 @@ export function parsePuzzleResponse(raw: LichessPuzzleResponse): Puzzle {
     themes: puzzle.themes,
     gameUrl: `https://lichess.org/${raw.game.id}`,
     lastMove: puzzle.lastMove,
+  };
+}
+
+export function createPuzzleFromBundled(entry: PuzzleEntry): Puzzle {
+  const chess = new Chess(entry.fen);
+  const opponentMove = uciToMove(entry.solution[0]);
+  chess.move(opponentMove);
+
+  return {
+    id: entry.id,
+    fen: entry.fen,
+    playerFen: chess.fen(),
+    solutionMoves: [...entry.solution],
+    rating: entry.rating,
+    ratingDeviation: 0,
+    themes: entry.themes,
+    gameUrl: "",
+    lastMove: entry.solution[0],
   };
 }
