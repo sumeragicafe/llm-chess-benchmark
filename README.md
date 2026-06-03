@@ -2,7 +2,7 @@
 
 CLI tool to benchmark LLMs on chess puzzles using the [Lichess puzzle database](https://lichess.org/training).
 
-Fetches rated puzzles from Lichess, presents them to an LLM, and evaluates whether the model finds the correct move.
+Fetches rated puzzles from Lichess with animated braille spinners, presents them to an LLM, and evaluates whether the model finds the correct move.
 
 ## Install
 

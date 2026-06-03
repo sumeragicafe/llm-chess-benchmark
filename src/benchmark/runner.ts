@@ -11,7 +11,7 @@ import { selectPuzzles } from "../puzzle/selector.js";
 import { BUNDLED_PUZZLES } from "../puzzle/bundled.js";
 import { evaluateMove } from "./evaluator.js";
 import { aggregateByRatingBracket, aggregateByTheme } from "./aggregator.js";
-import { createProgressBar, stopProgress } from "./progress.js";
+import { createProgressBar, createSpinner, stopProgress } from "./progress.js";
 import { BenchmarkConfig, BenchmarkResult, PuzzleEvaluation } from "./types.js";
 import { Puzzle } from "../puzzle/types.js";
 
@@ -69,7 +69,7 @@ async function loadPuzzles(config: BenchmarkConfig): Promise<Puzzle[]> {
     return entries.map(createPuzzleFromBundled);
   }
 
-  console.log("Fetching puzzles from Lichess...");
+  const spinner = createSpinner(`Fetching 0/${config.puzzles} puzzles from Lichess...`);
 
   const shuffledIds = [...BUNDLED_PUZZLES.map((p) => p.id)].sort(() => Math.random() - 0.5);
   const puzzles: Puzzle[] = [];
@@ -96,11 +96,14 @@ async function loadPuzzles(config: BenchmarkConfig): Promise<Puzzle[]> {
       const puzzle = await fetchOneById();
       if (!puzzle) break;
       puzzles.push(puzzle);
+      spinner.update(`Fetching ${puzzles.length}/${config.puzzles} puzzles from Lichess...`);
     }
   }
 
   const workers = Array.from({ length: concurrency }, () => worker());
   await Promise.all(workers);
+
+  spinner.stop(`Fetched ${puzzles.length} puzzles from Lichess`);
 
   return puzzles;
 }

@@ -27,7 +27,8 @@
     "cli-progress": "^3.12.0",
     "cli-table3": "^0.6.5",
     "commander": "^12.1.0",
-    "openai": "^4.67.0"
+    "openai": "^4.67.0",
+    "unicode-animations": "^1.0.3"
   },
   "devDependencies": {
     "@types/cli-progress": "^3.11.6",

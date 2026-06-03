@@ -13,14 +13,14 @@ Responsible for orchestrating the benchmark run: loading puzzles, evaluating LLM
 | `runner.ts` | `runBenchmark()` — main orchestrator, loads puzzles, runs concurrent workers |
 | `evaluator.ts` | `evaluateMove()` — compares LLM move against solution |
 | `aggregator.ts` | `aggregateByRatingBracket()`, `aggregateByTheme()` |
-| `progress.ts` | CLI progress bar via `cli-progress` |
+| `progress.ts` | CLI progress bar via `cli-progress`, braille fetch spinner via `unicode-animations` |
 
 ## Runner Orchestration
 
 `runBenchmark()` in `runner.ts` is the main entry point:
 
 1. **Create adapter** — `createAdapter()` instantiates the right LLM provider and wraps it with `withRetry()`
-2. **Load puzzles** — `loadPuzzles()` either uses bundled data or fetches from Lichess API
+2. **Load puzzles** — `loadPuzzles()` either uses bundled data or fetches from Lichess API. When fetching, a braille spinner (`scan` style) animates with the current fetch count, finishing with a `●` completion indicator
 3. **Evaluate concurrently** — `runConcurrent()` spins up N workers (controlled by `--concurrency`) that pull from a shared queue
 4. **Aggregate** — Results are grouped by rating bracket and theme
 5. **Return** `BenchmarkResult`

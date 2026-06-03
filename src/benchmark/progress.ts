@@ -1,4 +1,5 @@
 import cliProgress from "cli-progress";
+import spinners from "unicode-animations";
 
 export function createProgressBar(total: number): cliProgress.SingleBar {
   const bar = new cliProgress.SingleBar(
@@ -28,4 +29,28 @@ export function stopProgress(bar: cliProgress.SingleBar, correct: number, total:
   const accuracy = total > 0 ? ((correct / total) * 100).toFixed(1) : "0.0";
   bar.update(total, { accuracy });
   bar.stop();
+}
+
+export interface Spinner {
+  update(msg: string): void;
+  stop(msg: string): void;
+}
+
+export function createSpinner(initialMsg: string, name: keyof typeof spinners = "scan"): Spinner {
+  const { frames, interval } = spinners[name];
+  let i = 0;
+  let text = initialMsg;
+  const timer = setInterval(() => {
+    process.stdout.write(`\r\x1B[2K  ${frames[i++ % frames.length]} ${text}`);
+  }, interval);
+
+  return {
+    update(msg: string) {
+      text = msg;
+    },
+    stop(msg: string) {
+      clearInterval(timer);
+      process.stdout.write(`\r\x1B[2K  \u25CF ${msg}\n`);
+    },
+  };
 }
